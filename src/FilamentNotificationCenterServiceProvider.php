@@ -10,11 +10,11 @@ use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Filesystem\Filesystem;
 use Livewire\Features\SupportTesting\Testable;
+use Prodstarter\FilamentNotificationCenter\Commands\FilamentNotificationCenterCommand;
+use Prodstarter\FilamentNotificationCenter\Testing\TestsFilamentNotificationCenter;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Prodstarter\FilamentNotificationCenter\Commands\FilamentNotificationCenterCommand;
-use Prodstarter\FilamentNotificationCenter\Testing\TestsFilamentNotificationCenter;
 
 class FilamentNotificationCenterServiceProvider extends PackageServiceProvider
 {
