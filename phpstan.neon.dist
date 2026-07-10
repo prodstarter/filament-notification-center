@@ -1,4 +1,5 @@
 includes:
+    - vendor/larastan/larastan/extension.neon
     - phpstan-baseline.neon
 
 parameters:
@@ -10,4 +11,28 @@ parameters:
     tmpDir: build/phpstan
     checkOctaneCompatibility: true
     checkModelProperties: true
+    ignoreErrors:
+        -
+            # These traits are public API meant to be `use`d by consumers' own
+            # Importer/Exporter classes (see README), so they're never used
+            # within this package's own analyzed src/ paths.
+            identifier: trait.unused
+            path: src/Concerns/Categorizes*.php
+        -
+            # Notification::category()/getCategory() are macros registered via
+            # Filament\Support\Concerns\Macroable, which rebinds $this to the
+            # calling instance at runtime via Closure::bindTo(). Larastan's
+            # macro-aware $this inference only special-cases Laravel's own
+            # Illuminate\Support\Traits\Macroable, not Filament's copy of it,
+            # so it can't see that rebinding here. Verified correct by the
+            # macro round-trip tests in tests/NotificationCategoryMacroTest.php.
+            identifiers:
+                - varTag.nativeType
+                - return.type
+            path: src/FilamentNotificationCenterServiceProvider.php
+        -
+            # Same Macroable $this-rebinding limitation as above, this time for
+            # the Testable::mixin() assertions used in Pest tests.
+            identifier: varTag.nativeType
+            path: src/Testing/TestsFilamentNotificationCenter.php
 

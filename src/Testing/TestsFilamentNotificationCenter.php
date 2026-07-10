@@ -5,6 +5,7 @@ namespace Prodstarter\FilamentNotificationCenter\Testing;
 use Closure;
 use Livewire\Features\SupportTesting\Testable;
 use PHPUnit\Framework\Assert;
+use Prodstarter\FilamentNotificationCenter\Livewire\NotificationCenter;
 
 /**
  * @mixin Testable
@@ -25,7 +26,10 @@ class TestsFilamentNotificationCenter
     {
         return function (string $categoryId, int $count) {
             /** @var Testable $this */
-            $tab = $this->instance()->categoryTabs->firstWhere('id', $categoryId);
+            $instance = $this->instance();
+
+            /** @var NotificationCenter $instance */
+            $tab = $instance->categoryTabs->firstWhere('id', $categoryId);
 
             Assert::assertNotNull($tab, "No notification category tab exists with id [{$categoryId}].");
             Assert::assertSame($count, $tab->count, "Expected [{$count}] unread notifications in the [{$categoryId}] category, got [{$tab->count}].");

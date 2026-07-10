@@ -11,7 +11,11 @@ use Livewire\Attributes\Computed;
 use Prodstarter\FilamentNotificationCenter\FilamentNotificationCenter;
 use Prodstarter\FilamentNotificationCenter\FilamentNotificationCenterPlugin;
 use Prodstarter\FilamentNotificationCenter\NotificationCenterCategory;
+use Prodstarter\FilamentNotificationCenter\NotificationCenterTab;
 
+/**
+ * @property-read Collection<int, NotificationCenterTab> $categoryTabs
+ */
 class NotificationCenter extends DatabaseNotifications
 {
     public string $activeCategory = 'all';
@@ -35,7 +39,7 @@ class NotificationCenter extends DatabaseNotifications
     }
 
     /**
-     * @return Collection<int, object{id: string, label: string, icon: mixed, color: mixed, count: int}>
+     * @return Collection<int, NotificationCenterTab>
      */
     #[Computed]
     public function categoryTabs(): Collection
@@ -50,25 +54,25 @@ class NotificationCenter extends DatabaseNotifications
         }
 
         $tabs = collect([
-            (object) [
-                'id' => 'all',
-                'label' => __('filament-notification-center::notification-center.tabs.all'),
-                'icon' => null,
-                'color' => null,
-                'count' => $this->getBaseNotificationsQuery()->unread()->count(),
-            ],
+            new NotificationCenterTab(
+                id: 'all',
+                label: (string) __('filament-notification-center::notification-center.tabs.all'),
+                icon: null,
+                color: null,
+                count: $this->getBaseNotificationsQuery()->whereNull('read_at')->count(),
+            ),
         ]);
 
         foreach ($categories as $category) {
-            $tabs->push((object) [
-                'id' => $category->getId(),
-                'label' => $category->getLabel(),
-                'icon' => $category->getIcon(),
-                'color' => $category->getColor(),
-                'count' => $this->scopeQueryToCategory($this->getBaseNotificationsQuery(), $category->getId())
-                    ->unread()
+            $tabs->push(new NotificationCenterTab(
+                id: $category->getId(),
+                label: $category->getLabel(),
+                icon: $category->getIcon(),
+                color: $category->getColor(),
+                count: $this->scopeQueryToCategory($this->getBaseNotificationsQuery(), $category->getId())
+                    ->whereNull('read_at')
                     ->count(),
-            ]);
+            ));
         }
 
         return $tabs;
