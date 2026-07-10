@@ -4,10 +4,8 @@ namespace Prodstarter\FilamentNotificationCenter;
 
 use BackedEnum;
 use Filament\Notifications\Notification;
-use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
-use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Filesystem\Filesystem;
@@ -39,10 +37,8 @@ class FilamentNotificationCenterServiceProvider extends PackageServiceProvider
                     ->askToStarRepoOnGitHub('prodstarter/filament-notification-center');
             });
 
-        $configFileName = $package->shortName();
-
-        if (file_exists($package->basePath("/../config/{$configFileName}.php"))) {
-            $package->hasConfigFile();
+        if (file_exists($package->basePath('/../config/notification-center.php'))) {
+            $package->hasConfigFile('notification-center');
         }
 
         if (file_exists($package->basePath('/../resources/lang'))) {
@@ -117,9 +113,7 @@ class FilamentNotificationCenterServiceProvider extends PackageServiceProvider
     protected function getAssets(): array
     {
         return [
-            // AlpineComponent::make('filament-notification-center', __DIR__ . '/../resources/dist/components/filament-notification-center.js'),
-            // Css::make('filament-notification-center-styles', __DIR__ . '/../resources/dist/filament-notification-center.css'),
-            // Js::make('filament-notification-center-scripts', __DIR__ . '/../resources/dist/filament-notification-center.js'),
+            Css::make('filament-notification-center-styles', __DIR__ . '/../resources/dist/filament-notification-center.css'),
         ];
     }
 

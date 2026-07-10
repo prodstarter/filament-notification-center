@@ -50,3 +50,11 @@ compile({
 }).then(() => {
     console.log(`Build completed for filament-notification-center.js`)
 })
+
+compile({
+    ...defaultOptions,
+    entryPoints: ['./resources/css/index.css'],
+    outfile: './resources/dist/filament-notification-center.css',
+}).then(() => {
+    console.log(`Build completed for filament-notification-center.css`)
+})

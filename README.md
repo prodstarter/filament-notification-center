@@ -1,62 +1,197 @@
-# Extend Filament's notification drawer with customizable tabs and notification categories for a cleaner, more organized user experience
+# Filament Notification Center
+
+**A smarter notification experience for Filament.**
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/prodstarter/filament-notification-center.svg?style=flat-square)](https://packagist.org/packages/prodstarter/filament-notification-center)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/prodstarter/filament-notification-center/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/prodstarter/filament-notification-center/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/prodstarter/filament-notification-center/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/prodstarter/filament-notification-center/actions?query=workflow%3A"Fix+PHP+code+styling"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/prodstarter/filament-notification-center.svg?style=flat-square)](https://packagist.org/packages/prodstarter/filament-notification-center)
 
+![Filament Notification Center](art/notification-center.png)
 
+Filament's built-in notification drawer is intentionally simple: a single, flat, chronological list. That's fine for small apps, but once a panel starts receiving notifications from many different parts of a system — orders, billing, CRM, system alerts — a flat list quickly becomes hard to scan.
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+Filament Notification Center replaces the drawer's contents with **categorized tabs**, each with its own unread badge, while keeping every existing Filament notification API working exactly as before. There's no new way to send a notification — you just add `->category(...)` to the `Notification::make()` chain you already use.
+
+## Features
+
+- 🗂️ **Categorized tabs** in the notification drawer — "All" plus one tab per category you register, each with an unread count badge.
+- 🔌 **Drop-in compatible** — `Notification::make()->title(...)->sendToDatabase($user)` keeps working unmodified. Add `->category('orders')` to file it under a tab.
+- 🧩 **Per-panel configuration** — register a different set of categories per panel (admin, vendor, customer, ...) via the plugin instance.
+- 🏷️ **Enum-friendly** — register categories as plain objects or as `BackedEnum` cases implementing Filament's `HasLabel` / `HasIcon` / `HasColor` contracts.
+- 🎯 **No schema changes** — the category is stored in the existing notification `data` payload, so there's no migration to run and no risk to your existing notifications table.
+- 🎨 **Looks native** — built entirely from Filament's own UI components (`x-filament::tabs`, `x-filament::modal`, `x-filament::empty-state`), so it matches your panel's theme, including dark mode.
+- 🧪 **Fully tested** — Pest test suite covering category filtering, unread counts, and the notification macro.
+
+## Requirements
+
+- PHP 8.2+
+- Filament 5.0+
 
 ## Installation
 
-You can install the package via composer:
+Install the package via Composer:
 
 ```bash
 composer require prodstarter/filament-notification-center
 ```
 
-> [!IMPORTANT]
-> If you have not set up a custom theme and are using Filament Panels follow the instructions in the [Filament Docs](https://filamentphp.com/docs/4.x/styling/overview#creating-a-custom-theme) first.
+That's it — there's no migration to publish. Categories are stored inside the same `data` column your `notifications` table already has.
 
-After setting up a custom theme add the plugin's views to your theme css file or your app's css file if using the standalone packages.
-
-```css
-@source '../../../../vendor/prodstarter/filament-notification-center/resources/**/*.blade.php';
-```
-
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag="filament-notification-center-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
+If you want to customize the default category name or override the empty-state text/behavior for every panel, you can publish the config file:
 
 ```bash
 php artisan vendor:publish --tag="filament-notification-center-config"
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag="filament-notification-center-views"
 ```
 
 This is the contents of the published config file:
 
 ```php
 return [
+    // The category ID that notifications sent without an explicit ->category()
+    // are grouped under in the notification center drawer.
+    'default_category' => 'general',
 ];
 ```
 
 ## Usage
 
+### 1. Register the plugin on a panel
+
+In your panel provider, register the plugin and define its categories. This replaces Filament's built-in notification drawer component for that panel — make sure `->databaseNotifications()` is enabled.
+
 ```php
-$filamentNotificationCenter = new Prodstarter\FilamentNotificationCenter();
-echo $filamentNotificationCenter->echoPhrase('Hello, Prodstarter!');
+use Filament\Panel;
+use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
+use Prodstarter\FilamentNotificationCenter\FilamentNotificationCenterPlugin;
+use Prodstarter\FilamentNotificationCenter\NotificationCenterCategory;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        // ...
+        ->databaseNotifications()
+        ->plugins([
+            FilamentNotificationCenterPlugin::make()->categories([
+                NotificationCenterCategory::make('system')
+                    ->label('System')
+                    ->icon(Heroicon::Cog6Tooth)
+                    ->color(Color::Gray)
+                    ->order(1),
+                NotificationCenterCategory::make('orders')
+                    ->label('Orders')
+                    ->icon(Heroicon::ShoppingBag)
+                    ->color(Color::Amber)
+                    ->order(2),
+                NotificationCenterCategory::make('crm')
+                    ->label('CRM')
+                    ->icon(Heroicon::Users)
+                    ->color(Color::Blue)
+                    ->order(3),
+                NotificationCenterCategory::make('billing')
+                    ->label('Billing')
+                    ->icon(Heroicon::CreditCard)
+                    ->color(Color::Emerald)
+                    ->order(4),
+            ]),
+        ]);
+}
+```
+
+Because categories are registered on the plugin *instance*, different panels in the same app (e.g. `admin` and `vendor`) can each have their own set of tabs.
+
+### 2. Send a categorized notification
+
+Nothing about sending notifications changes — just add `->category()` to the chain:
+
+```php
+use Filament\Notifications\Notification;
+
+Notification::make()
+    ->title('New order #1042 received')
+    ->icon('heroicon-o-shopping-bag')
+    ->color('warning')
+    ->category('orders')
+    ->sendToDatabase($user);
+```
+
+Notifications sent **without** a category (including ones sent by other packages, or code written before you installed this plugin) automatically appear under the "General" tab, so nothing existing breaks when you add the plugin.
+
+### 3. Use enums instead of raw strings (optional)
+
+`->category()` also accepts a `BackedEnum`. If the enum implements Filament's `HasLabel`, `HasIcon`, and/or `HasColor` contracts, the tab's label, icon, and color are read straight from it — no need to also define a `NotificationCenterCategory` for it.
+
+```php
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
+use Filament\Support\Contracts\HasLabel;
+
+enum NotificationCategory: string implements HasColor, HasIcon, HasLabel
+{
+    case Orders = 'orders';
+    case Crm = 'crm';
+
+    public function getLabel(): string
+    {
+        return match ($this) {
+            self::Orders => 'Orders',
+            self::Crm => 'CRM',
+        };
+    }
+
+    public function getIcon(): string
+    {
+        return match ($this) {
+            self::Orders => 'heroicon-o-shopping-bag',
+            self::Crm => 'heroicon-o-users',
+        };
+    }
+
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::Orders => 'amber',
+            self::Crm => 'info',
+        };
+    }
+}
+```
+
+```php
+FilamentNotificationCenterPlugin::make()->categories([
+    NotificationCategory::Orders,
+    NotificationCategory::Crm,
+]);
+
+Notification::make()
+    ->title('New order #1042 received')
+    ->category(NotificationCategory::Orders)
+    ->sendToDatabase($user);
+```
+
+### 4. Customizing the default category and empty states
+
+```php
+FilamentNotificationCenterPlugin::make()
+    ->categories([...])
+    ->defaultCategory('general') // where uncategorized notifications land
+    ->emptyStateUsing(fn (string $categoryId): array => [
+        'heading' => "Nothing here yet",
+        'description' => "You're all caught up in {$categoryId}.",
+    ]);
+```
+
+### 5. Registering categories globally
+
+If every panel in your app should share the same categories, you can register them once via the `NotificationCenter` facade in a service provider's `boot()` method instead of repeating them per panel. A panel only falls back to this global registration if the plugin instance on that panel has no categories of its own.
+
+```php
+use NotificationCenter;
+
+NotificationCenter::categories([
+    // ...
+]);
 ```
 
 ## Testing

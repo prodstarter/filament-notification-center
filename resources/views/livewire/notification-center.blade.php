@@ -46,48 +46,59 @@
 
         @if ($hasAnyNotifications)
             <x-slot name="header">
-                <div>
-                    <h2 class="fi-modal-heading">
-                        {{ __('filament-notifications::database.modal.heading') }}
+                <div class="fi-notification-center-header">
+                    <div>
+                        <h2 class="fi-modal-heading">
+                            {{ __('filament-notifications::database.modal.heading') }}
 
-                        @if ($unreadNotificationsCount)
-                            <span
-                                {{
-                                    (new ComponentAttributeBag)->color(BadgeComponent::class, 'primary')->class([
-                                        'fi-badge fi-size-xs',
-                                    ])
-                                }}
+                            @if ($unreadNotificationsCount)
+                                <span
+                                    {{
+                                        (new ComponentAttributeBag)->color(BadgeComponent::class, 'primary')->class([
+                                            'fi-badge fi-size-xs',
+                                        ])
+                                    }}
+                                >
+                                    {{ $unreadNotificationsCount }}
+                                </span>
+                            @endif
+                        </h2>
+
+                        <div class="fi-ac">
+                            @if ($unreadNotificationsCount && $this->markAllNotificationsAsReadAction?->isVisible())
+                                {{ $this->markAllNotificationsAsReadAction }}
+                            @endif
+
+                            @if ($hasNotifications && $this->clearNotificationsAction?->isVisible())
+                                {{ $this->clearNotificationsAction }}
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- See resources/css/index.css for why the border/shadow, clipping,
+                         and width containment are split across two wrappers here. --}}
+                    <div class="fi-notification-center-tabs-outer">
+                        <div class="fi-notification-center-tabs-inner">
+                            <x-filament::tabs
+                                label="{{ __('filament-notification-center::notification-center.tabs.label') }}"
+                                style="box-shadow: none;"
                             >
-                                {{ $unreadNotificationsCount }}
-                            </span>
-                        @endif
-                    </h2>
-
-                    <div class="fi-ac">
-                        @if ($unreadNotificationsCount && $this->markAllNotificationsAsReadAction?->isVisible())
-                            {{ $this->markAllNotificationsAsReadAction }}
-                        @endif
-
-                        @if ($hasNotifications && $this->clearNotificationsAction?->isVisible())
-                            {{ $this->clearNotificationsAction }}
-                        @endif
+                                @foreach ($tabs as $tab)
+                                    <x-filament::tabs.item
+                                        :active="$activeCategory === $tab->id"
+                                        :icon="$tab->icon"
+                                        :badge="$tab->count > 0 ? $tab->count : null"
+                                        :badge-color="$tab->color ?? 'gray'"
+                                        wire:click="setActiveCategory('{{ $tab->id }}')"
+                                        wire:key="notification-center-tab-{{ $tab->id }}"
+                                    >
+                                        {{ $tab->label }}
+                                    </x-filament::tabs.item>
+                                @endforeach
+                            </x-filament::tabs>
+                        </div>
                     </div>
                 </div>
-
-                <x-filament::tabs label="{{ __('filament-notification-center::notification-center.tabs.label') }}">
-                    @foreach ($tabs as $tab)
-                        <x-filament::tabs.item
-                            :active="$activeCategory === $tab->id"
-                            :icon="$tab->icon"
-                            :badge="$tab->count > 0 ? $tab->count : null"
-                            :badge-color="$tab->color ?? 'gray'"
-                            wire:click="setActiveCategory('{{ $tab->id }}')"
-                            wire:key="notification-center-tab-{{ $tab->id }}"
-                        >
-                            {{ $tab->label }}
-                        </x-filament::tabs.item>
-                    @endforeach
-                </x-filament::tabs>
             </x-slot>
 
             @if ($hasNotifications)
