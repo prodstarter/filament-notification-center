@@ -1,13 +1,27 @@
-# Filament Notification Center
+<h1 align="center">Filament Notification Center</h1>
 
-**A smarter notification experience for Filament.**
+<p align="center">
+<strong>A smarter notification experience for Filament — categorized tabs for the notification drawer, with zero changes to how you already send notifications.</strong>
+</p>
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/prodstarter/filament-notification-center.svg?style=flat-square)](https://packagist.org/packages/prodstarter/filament-notification-center)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/prodstarter/filament-notification-center/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/prodstarter/filament-notification-center/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/prodstarter/filament-notification-center/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/prodstarter/filament-notification-center/actions?query=workflow%3A"Fix+PHP+code+styling"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/prodstarter/filament-notification-center.svg?style=flat-square)](https://packagist.org/packages/prodstarter/filament-notification-center)
+<p align="center">
+<a href="https://packagist.org/packages/prodstarter/filament-notification-center"><img alt="Latest Version on Packagist" src="https://img.shields.io/packagist/v/prodstarter/filament-notification-center.svg?style=flat-square"></a>
+<a href="https://github.com/prodstarter/filament-notification-center/actions?query=workflow%3Arun-tests+branch%3Amain"><img alt="Tests" src="https://img.shields.io/github/actions/workflow/status/prodstarter/filament-notification-center/run-tests.yml?branch=main&label=tests&style=flat-square"></a>
+<a href="https://github.com/prodstarter/filament-notification-center/actions?query=workflow%3A%22Fix+PHP+code+styling%22+branch%3Amain"><img alt="Code Style" src="https://img.shields.io/github/actions/workflow/status/prodstarter/filament-notification-center/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square"></a>
+<a href="https://packagist.org/packages/prodstarter/filament-notification-center"><img alt="Total Downloads" src="https://img.shields.io/packagist/dt/prodstarter/filament-notification-center.svg?style=flat-square"></a>
+</p>
+
+<p align="center">
+<a href="#installation">Installation</a> ·
+<a href="#features">Features</a> ·
+<a href="#usage">Usage</a>
+</p>
+
+---
 
 ![Filament Notification Center](art/notification-center.png)
+
+## Why Filament Notification Center
 
 Filament's built-in notification drawer is intentionally simple: a single, flat, chronological list. That's fine for small apps, but once a panel starts receiving notifications from many different parts of a system — orders, billing, CRM, system alerts — a flat list quickly becomes hard to scan.
 
