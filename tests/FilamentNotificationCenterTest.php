@@ -53,3 +53,34 @@ it('falls back to translated default empty state text when no callback is set', 
         'description' => 'You\'re all caught up.',
     ]);
 });
+
+it('does not include the built-in imports/exports categories when disabled', function () {
+    $manager = (new FilamentNotificationCenter)->categories([
+        NotificationCenterCategory::make('orders'),
+    ]);
+
+    expect($manager->getCategories()->keys()->all())->toBe(['orders']);
+});
+
+it('includes an enabled built-in category from config', function () {
+    config()->set('notification-center.imports.enabled', true);
+
+    $manager = (new FilamentNotificationCenter)->categories([
+        NotificationCenterCategory::make('orders')->order(1),
+    ]);
+
+    $categories = $manager->getCategories();
+
+    expect($categories->keys()->all())->toBe(['orders', 'imports'])
+        ->and($categories->get('imports')->getLabel())->toBe('Imports');
+});
+
+it('lets an explicitly registered category override a built-in one with the same id', function () {
+    config()->set('notification-center.imports.enabled', true);
+
+    $manager = (new FilamentNotificationCenter)->categories([
+        NotificationCenterCategory::make('imports')->label('Custom Imports'),
+    ]);
+
+    expect($manager->getCategories()->get('imports')->getLabel())->toBe('Custom Imports');
+});

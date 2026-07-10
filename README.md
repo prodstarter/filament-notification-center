@@ -21,6 +21,7 @@ Filament Notification Center replaces the drawer's contents with **categorized t
 - 🏷️ **Enum-friendly** — register categories as plain objects or as `BackedEnum` cases implementing Filament's `HasLabel` / `HasIcon` / `HasColor` contracts.
 - 🎯 **No schema changes** — the category is stored in the existing notification `data` payload, so there's no migration to run and no risk to your existing notifications table.
 - 🎨 **Looks native** — built entirely from Filament's own UI components (`x-filament::tabs`, `x-filament::modal`, `x-filament::empty-state`), so it matches your panel's theme, including dark mode.
+- 📥 **Built-in import/export tabs** — enable dedicated "Imports"/"Exports" tabs in the config for Filament's import and export action completion notifications.
 - 🧪 **Fully tested** — Pest test suite covering category filtering, unread counts, and the notification macro.
 
 ## Requirements
@@ -192,6 +193,71 @@ use NotificationCenter;
 NotificationCenter::categories([
     // ...
 ]);
+```
+
+### 6. Categorizing import/export notifications
+
+Filament's [import](https://filamentphp.com/docs/5.x/actions/import) and [export](https://filamentphp.com/docs/5.x/actions/export) actions send a completion notification to the user once the job finishes. Filament Notification Center can file these under their own "Imports" and "Exports" tabs.
+
+Enable the tab you want in the published config — this alone controls whether the tab exists and how it's labeled/colored/ordered:
+
+```php
+// config/notification-center.php
+'imports' => [
+    'enabled' => true,
+    'category' => 'imports',
+    'label' => 'Imports',
+    'icon' => 'heroicon-o-arrow-up-tray',
+    'color' => 'info',
+    'order' => 90,
+],
+```
+
+Filament calls `modifyCompletedNotification()` on your own `Importer`/`Exporter` class to let you customize the completion notification — there's no global hook for it, so add the matching trait to each `Importer`/`Exporter` you want tagged:
+
+```php
+use Filament\Actions\Imports\Importer;
+use Prodstarter\FilamentNotificationCenter\Concerns\CategorizesImportNotifications;
+
+class ProductImporter extends Importer
+{
+    use CategorizesImportNotifications;
+
+    // ...
+}
+```
+
+```php
+use Filament\Actions\Exports\Exporter;
+use Prodstarter\FilamentNotificationCenter\Concerns\CategorizesExportNotifications;
+
+class ProductExporter extends Exporter
+{
+    use CategorizesExportNotifications;
+
+    // ...
+}
+```
+
+The trait's `modifyCompletedNotification()` reads the `enabled`/`category` config at send time, so flipping `enabled` back to `false` stops new notifications from being tagged without touching the Importer/Exporter class. If you already override `modifyCompletedNotification()` for your own customizations (changing the icon, adding actions, etc.), call the helper from inside it instead of using the trait directly:
+
+```php
+use Filament\Actions\Imports\Importer;
+use Filament\Actions\Imports\Models\Import;
+use Filament\Notifications\Notification;
+use Prodstarter\FilamentNotificationCenter\Concerns\CategorizesImportNotifications;
+
+class ProductImporter extends Importer
+{
+    use CategorizesImportNotifications;
+
+    public static function modifyCompletedNotification(Notification $notification, Import $import): Notification
+    {
+        $notification = static::categorizeImportNotification($notification);
+
+        return $notification->icon('heroicon-o-shopping-bag');
+    }
+}
 ```
 
 ## Testing

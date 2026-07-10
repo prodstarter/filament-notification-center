@@ -26,7 +26,6 @@ class FilamentNotificationCenter
             ->map(fn (NotificationCenterCategory | BackedEnum $category): NotificationCenterCategory => $category instanceof BackedEnum
                 ? NotificationCenterCategory::fromEnum($category)
                 : $category)
-            ->sortBy(fn (NotificationCenterCategory $category): int => $category->getOrder())
             ->keyBy(fn (NotificationCenterCategory $category): string => $category->getId());
 
         return $this;
@@ -38,11 +37,49 @@ class FilamentNotificationCenter
     }
 
     /**
+     * The registered categories, merged with any config-enabled built-in
+     * categories (e.g. imports/exports) that weren't already registered
+     * explicitly, sorted by order.
+     *
      * @return Collection<string, NotificationCenterCategory>
      */
     public function getCategories(): Collection
     {
-        return $this->categories ?? collect();
+        $categories = $this->categories ?? collect();
+
+        $builtIn = $this->getBuiltInCategories()->reject(
+            fn (NotificationCenterCategory $category): bool => $categories->has($category->getId())
+        );
+
+        return $categories->merge($builtIn)
+            ->sortBy(fn (NotificationCenterCategory $category): int => $category->getOrder())
+            ->values()
+            ->keyBy(fn (NotificationCenterCategory $category): string => $category->getId());
+    }
+
+    /**
+     * Categories that ship with the plugin (import/export completion
+     * notifications) and are enabled via config rather than ->categories().
+     *
+     * @return Collection<string, NotificationCenterCategory>
+     */
+    protected function getBuiltInCategories(): Collection
+    {
+        return collect([
+            'imports' => config('notification-center.imports'),
+            'exports' => config('notification-center.exports'),
+        ])
+            ->filter(fn (?array $definition): bool => (bool) ($definition['enabled'] ?? false))
+            ->map(function (array $definition, string $key): NotificationCenterCategory {
+                $id = $definition['category'] ?? $key;
+
+                return NotificationCenterCategory::make($id)
+                    ->label($definition['label'] ?? null)
+                    ->icon($definition['icon'] ?? null)
+                    ->color($definition['color'] ?? null)
+                    ->order($definition['order'] ?? 100);
+            })
+            ->keyBy(fn (NotificationCenterCategory $category): string => $category->getId());
     }
 
     public function getCategory(string $id): ?NotificationCenterCategory
