@@ -2,6 +2,18 @@
 
 All notable changes to `filament-notification-center` will be documented in this file.
 
+## v1.0.1 - 2026-07-10
+
+Fixes a broken `phpstan` CI workflow and the static analysis issues it uncovered. No public API changes — safe to update from v1.0.0.
+
+### Fixed
+
+- `phpstan.neon.dist` was missing the `larastan/larastan` extension include, so every CI job failed immediately with an "Invalid configuration" error before any analysis could run (larastan v3 no longer self-registers via `phpstan/extension-installer`).
+- Replaced untyped `stdClass` notification tab objects with a proper `NotificationCenterTab` value object (same public properties — `id`, `label`, `icon`, `color`, `count` — no behavior change).
+- Resolved the remaining PHPStan findings once analysis could actually run; `./vendor/bin/phpstan` now passes clean.
+
+**Full Changelog**: https://github.com/prodstarter/filament-notification-center/compare/v1.0.0...v1.0.1
+
 ## 1.0.1 - 2026-07-10
 
 Fixes a broken `phpstan` CI workflow and the static analysis issues it uncovered. No public API changes.
