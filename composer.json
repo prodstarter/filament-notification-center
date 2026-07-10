@@ -61,7 +61,8 @@
                 "Prodstarter\\FilamentNotificationCenter\\FilamentNotificationCenterServiceProvider"
             ],
             "aliases": {
-                "FilamentNotificationCenter": "Prodstarter\\FilamentNotificationCenter\\Facades\\FilamentNotificationCenter"
+                "FilamentNotificationCenter": "Prodstarter\\FilamentNotificationCenter\\Facades\\FilamentNotificationCenter",
+                "NotificationCenter": "Prodstarter\\FilamentNotificationCenter\\Facades\\FilamentNotificationCenter"
             }
         }
     },

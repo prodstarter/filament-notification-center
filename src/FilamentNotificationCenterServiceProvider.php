@@ -2,6 +2,8 @@
 
 namespace Prodstarter\FilamentNotificationCenter;
 
+use BackedEnum;
+use Filament\Notifications\Notification;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
@@ -10,11 +12,11 @@ use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Filesystem\Filesystem;
 use Livewire\Features\SupportTesting\Testable;
+use Prodstarter\FilamentNotificationCenter\Commands\FilamentNotificationCenterCommand;
+use Prodstarter\FilamentNotificationCenter\Testing\TestsFilamentNotificationCenter;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Prodstarter\FilamentNotificationCenter\Commands\FilamentNotificationCenterCommand;
-use Prodstarter\FilamentNotificationCenter\Testing\TestsFilamentNotificationCenter;
 
 class FilamentNotificationCenterServiceProvider extends PackageServiceProvider
 {
@@ -34,8 +36,6 @@ class FilamentNotificationCenterServiceProvider extends PackageServiceProvider
             ->hasInstallCommand(function (InstallCommand $command) {
                 $command
                     ->publishConfigFile()
-                    ->publishMigrations()
-                    ->askToRunMigrations()
                     ->askToStarRepoOnGitHub('prodstarter/filament-notification-center');
             });
 
@@ -43,10 +43,6 @@ class FilamentNotificationCenterServiceProvider extends PackageServiceProvider
 
         if (file_exists($package->basePath("/../config/{$configFileName}.php"))) {
             $package->hasConfigFile();
-        }
-
-        if (file_exists($package->basePath('/../database/migrations'))) {
-            $package->hasMigrations($this->getMigrations());
         }
 
         if (file_exists($package->basePath('/../resources/lang'))) {
@@ -58,7 +54,11 @@ class FilamentNotificationCenterServiceProvider extends PackageServiceProvider
         }
     }
 
-    public function packageRegistered(): void {}
+    public function packageRegistered(): void
+    {
+        $this->app->singleton(FilamentNotificationCenter::class, fn () => (new FilamentNotificationCenter)
+            ->defaultCategory(config('notification-center.default_category', 'general')));
+    }
 
     public function packageBooted(): void
     {
@@ -87,6 +87,23 @@ class FilamentNotificationCenterServiceProvider extends PackageServiceProvider
 
         // Testing
         Testable::mixin(new TestsFilamentNotificationCenter);
+
+        $this->registerNotificationCategoryMacros();
+    }
+
+    protected function registerNotificationCategoryMacros(): void
+    {
+        Notification::macro('category', function (string | BackedEnum | null $category): static {
+            /** @var Notification $this */
+            $this->viewData(['category' => $category instanceof BackedEnum ? $category->value : $category]);
+
+            return $this;
+        });
+
+        Notification::macro('getCategory', function (): ?string {
+            /** @var Notification $this */
+            return $this->getViewData()['category'] ?? null;
+        });
     }
 
     protected function getAssetPackageName(): ?string
@@ -138,15 +155,5 @@ class FilamentNotificationCenterServiceProvider extends PackageServiceProvider
     protected function getScriptData(): array
     {
         return [];
-    }
-
-    /**
-     * @return array<string>
-     */
-    protected function getMigrations(): array
-    {
-        return [
-            'create_filament-notification-center_table',
-        ];
     }
 }
