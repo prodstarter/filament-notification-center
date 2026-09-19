@@ -40,7 +40,7 @@ Filament Notification Center replaces the drawer's contents with **categorized t
 
 ## Requirements
 
-- PHP 8.2+
+- PHP 8.3+
 - Filament 5.0+
 
 ## Installation
