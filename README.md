@@ -6,8 +6,8 @@
 
 <p align="center">
 <a href="https://packagist.org/packages/prodstarter/filament-notification-center"><img alt="Latest Version on Packagist" src="https://img.shields.io/packagist/v/prodstarter/filament-notification-center.svg?style=flat-square"></a>
-<a href="https://github.com/prodstarter/filament-notification-center/actions?query=workflow%3Arun-tests+branch%3Amain"><img alt="Tests" src="https://img.shields.io/github/actions/workflow/status/prodstarter/filament-notification-center/run-tests.yml?branch=main&label=tests&style=flat-square"></a>
-<a href="https://github.com/prodstarter/filament-notification-center/actions?query=workflow%3A%22Fix+PHP+code+styling%22+branch%3Amain"><img alt="Code Style" src="https://img.shields.io/github/actions/workflow/status/prodstarter/filament-notification-center/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square"></a>
+<a href="https://github.com/prodstarter/filament-notification-center/actions?query=workflow%3Atests+branch%3Amain"><img alt="Tests" src="https://img.shields.io/github/actions/workflow/status/prodstarter/filament-notification-center/tests.yml?branch=main&label=tests&style=flat-square"></a>
+<a href="https://github.com/prodstarter/filament-notification-center/actions?query=workflow%3Afix-code-style+branch%3Amain"><img alt="Code Style" src="https://img.shields.io/github/actions/workflow/status/prodstarter/filament-notification-center/fix-code-style.yml?branch=main&label=code%20style&style=flat-square"></a>
 <a href="https://packagist.org/packages/prodstarter/filament-notification-center"><img alt="Total Downloads" src="https://img.shields.io/packagist/dt/prodstarter/filament-notification-center.svg?style=flat-square"></a>
 </p>
 
