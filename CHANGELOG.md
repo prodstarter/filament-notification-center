@@ -2,6 +2,18 @@
 
 All notable changes to `filament-notification-center` will be documented in this file.
 
+## v1.1.0 - 2026-09-19
+
+Fixes broken CI (tests were failing on every run) and README badges, and formalizes the package's actual minimum PHP version. No behavior changes to the package itself — safe to update from v1.0.1.
+
+### Fixed
+
+- **README badges**: the "tests" and "code style" shields.io badges pointed at workflow files that don't exist in this repo (`run-tests.yml`, `fix-php-code-style-issues.yml`), showing "repo or workflow not found". Fixed to point at the actual `tests.yml` / `fix-code-style.yml`.
+- **CI tests failing on every run**: `phpunit.xml.dist` declared a `<coverage>` report block, but CI installs PHP with no coverage driver. Under PHPUnit 12, that combination raises a "No code coverage driver available" warning at bootstrap, before any test runs — and with `failOnWarning="true"` already set, that aborted the whole suite with exit code 1 and 0 tests executed. Removed the unused coverage config.
+- **PHP 8.2 was never actually installable**: `composer.json` declared `"php": "^8.2"`, but Filament v5 requires `livewire ^4.1`, and the only pest tooling that supports livewire v4 requires PHP `^8.3`. On PHP 8.2, composer could only resolve to `pest-plugin-livewire` v3 (capped at livewire `^3.5.6`), which conflicts with Filament's requirement — `composer require prodstarter/filament-notification-center` failed to resolve on PHP 8.2. Bumped the minimum PHP version to `^8.3` to match what's actually installable.
+
+**Full Changelog**: https://github.com/prodstarter/filament-notification-center/compare/v1.0.1...v1.1.0
+
 ## v1.0.1 - 2026-07-10
 
 Fixes a broken `phpstan` CI workflow and the static analysis issues it uncovered. No public API changes — safe to update from v1.0.0.
