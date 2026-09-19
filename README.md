@@ -1,3 +1,5 @@
+<a href="https://prodstarter.com/ecosystem/filament" target="_blank"><img src="art/prodstarter-filament-opportunities.png" alt="Prodstarter — curated software opportunities for builders"></a>
+
 <h1 align="center">Filament Notification Center</h1>
 
 <p align="center">
